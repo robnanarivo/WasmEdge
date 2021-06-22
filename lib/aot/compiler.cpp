@@ -3841,7 +3841,7 @@ Expect<void> Compiler::compile(Span<const Byte> Data, const AST::Module &Module,
     // TODO:return error
     spdlog::error("so file creation failed:{}", OPath.native());
     llvm::consumeError(Object.takeError());
-    return Unexpect(ErrCode::InvalidPath);
+    return Unexpect(ErrCode::IllegalPath);
   }
   std::error_code EC;
   auto OS = std::make_unique<llvm::raw_fd_ostream>(Object->TmpName, EC);
@@ -3849,7 +3849,7 @@ Expect<void> Compiler::compile(Span<const Byte> Data, const AST::Module &Module,
     // TODO:return error
     spdlog::error("object file creation failed:{}", Object->TmpName);
     llvm::consumeError(Object->discard());
-    return Unexpect(ErrCode::InvalidPath);
+    return Unexpect(ErrCode::IllegalPath);
   }
 
   // optimize + codegen
@@ -3862,7 +3862,7 @@ Expect<void> Compiler::compile(Span<const Byte> Data, const AST::Module &Module,
       // TODO:return error
       spdlog::error("lookupTarget failed");
       llvm::consumeError(Object->discard());
-      return Unexpect(ErrCode::InvalidPath);
+      return Unexpect(ErrCode::IllegalPath);
     }
 
     llvm::TargetOptions Options;
@@ -3909,7 +3909,8 @@ Expect<void> Compiler::compile(Span<const Byte> Data, const AST::Module &Module,
       PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
 
       llvm::ModulePassManager MPM(false);
-      if (Conf.getCompilerConfigure().getOptimizationLevel() == CompilerConfigure::OptimizationLevel::O0) {
+      if (Conf.getCompilerConfigure().getOptimizationLevel() ==
+          CompilerConfigure::OptimizationLevel::O0) {
         MPM.addPass(llvm::AlwaysInlinerPass(false));
       } else {
         MPM.addPass(PB.buildPerModuleDefaultPipeline(
@@ -3936,7 +3937,7 @@ Expect<void> Compiler::compile(Span<const Byte> Data, const AST::Module &Module,
       // TODO:return error
       spdlog::error("addPassesToEmitFile failed");
       llvm::consumeError(Object->discard());
-      return Unexpect(ErrCode::InvalidPath);
+      return Unexpect(ErrCode::IllegalPath);
     }
 
     if (Conf.getCompilerConfigure().isDumpIR()) {
@@ -4270,7 +4271,8 @@ void Compiler::compile(const AST::FunctionSection &FuncSec,
         Locals.push_back(Local.second);
       }
     }
-    FunctionCompiler FC(*Context, F, Locals, Conf.getCompilerConfigure().isInstructionCounting(),
+    FunctionCompiler FC(*Context, F, Locals,
+                        Conf.getCompilerConfigure().isInstructionCounting(),
                         Conf.getCompilerConfigure().isCostMeasuring(),
                         Conf.getCompilerConfigure().getOptimizationLevel() ==
                             CompilerConfigure::OptimizationLevel::O0);

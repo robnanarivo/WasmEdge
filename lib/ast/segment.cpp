@@ -85,7 +85,7 @@ Expect<void> ElementSegment::loadBinary(FileMgr &Mgr, const Configure &Conf) {
 
   default:
     /// TODO: Correctness the error code once there's spec test.
-    return logLoadError(ErrCode::InvalidGrammar, Mgr.getLastOffset(), NodeAttr);
+    return logLoadError(ErrCode::IllegalGrammar, Mgr.getLastOffset(), NodeAttr);
   }
 
   /// Read the table index.
@@ -193,7 +193,7 @@ Expect<void> ElementSegment::loadBinary(FileMgr &Mgr, const Configure &Conf) {
           OpCode Code = Instr.getOpCode();
           if (Code != OpCode::Ref__func && Code != OpCode::Ref__null &&
               Code != OpCode::End) {
-            return logLoadError(ErrCode::InvalidOpCode, Instr.getOffset(),
+            return logLoadError(ErrCode::IllegalOpCode, Instr.getOffset(),
                                 NodeAttr);
           }
         }
@@ -336,7 +336,7 @@ Expect<void> DataSegment::loadBinary(FileMgr &Mgr, const Configure &Conf) {
   }
   default:
     /// TODO: Correctness the error code once there's spec test.
-    return logLoadError(ErrCode::InvalidGrammar, Mgr.getLastOffset(), NodeAttr);
+    return logLoadError(ErrCode::IllegalGrammar, Mgr.getLastOffset(), NodeAttr);
   }
   return {};
 }
