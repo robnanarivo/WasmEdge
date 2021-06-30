@@ -471,6 +471,18 @@ bool WasmEdge_StringIsEqual(const WasmEdge_String Str1,
   return std::equal(Str1.Buf, Str1.Buf + Str1.Length, Str2.Buf);
 }
 
+uint32_t WasmEdge_StringCopy(const WasmEdge_String Str, char *Buf,
+                             const uint32_t Len) {
+  if (Buf) {
+    std::memset(Buf, 0, Len);
+  }
+  uint32_t RealLength = std::min(Len, Str.Length);
+  if (RealLength > 0) {
+    std::copy_n(Str.Buf, RealLength, Buf);
+  }
+  return RealLength;
+}
+
 void WasmEdge_StringDelete(WasmEdge_String Str) {
   if (Str.Buf) {
     delete[] Str.Buf;
